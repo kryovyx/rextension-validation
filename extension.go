@@ -17,8 +17,8 @@ package validation
 import (
 	"context"
 
-	"github.com/kryovyx/rex/event"
 	rx "github.com/kryovyx/rextension"
+	rxevent "github.com/kryovyx/rextension/event"
 )
 
 // ValidationExtension implements the Rex extension contract for body validation
@@ -57,8 +57,8 @@ func (e *ValidationExtension) OnInitialize(ctx context.Context, r rx.Rex) error 
 	e.validator = newRouteValidator()
 
 	// Subscribe to route registration events to build the route index.
-	r.EventBus().Subscribe(event.RouterRouteRegisteredEventType, func(ev event.Event) {
-		if routeEv, ok := event.As[event.RouterRouteRegisteredEvent](ev); ok {
+	r.EventBus().Subscribe(rxevent.EventTypeRouterRouteRegistered, func(ev rxevent.Event) {
+			if routeEv, ok := rxevent.As[rxevent.RouterRouteRegisteredEvent](ev); ok {
 			e.index.register(routeEv.Route)
 			if _, isValidatable := routeEv.Route.(ValidatableRoute); isValidatable {
 				e.logger.Info("Registered validation schema for route %s %s",

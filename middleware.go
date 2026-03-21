@@ -10,7 +10,7 @@ package validation
 import (
 	"sync"
 
-	"github.com/kryovyx/rex/route"
+	rxevent "github.com/kryovyx/rextension/event"
 )
 
 // Context keys for validation data in request context.
@@ -34,7 +34,7 @@ func newRouteIndex() *routeIndex {
 	return &routeIndex{routes: make(map[string]ValidatableRoute)}
 }
 
-func (ri *routeIndex) register(rt route.Route) {
+func (ri *routeIndex) register(rt rxevent.Route) {
 	if vr, ok := rt.(ValidatableRoute); ok {
 		key := rt.Method() + " " + rt.Path()
 		ri.mu.Lock()
