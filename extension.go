@@ -58,7 +58,7 @@ func (e *ValidationExtension) OnInitialize(ctx context.Context, r rx.Rex) error 
 
 	// Subscribe to route registration events to build the route index.
 	r.EventBus().Subscribe(rxevent.EventTypeRouterRouteRegistered, func(ev rxevent.Event) {
-			if routeEv, ok := rxevent.As[rxevent.RouterRouteRegisteredEvent](ev); ok {
+		if routeEv, ok := rxevent.As[rxevent.RouterRouteRegisteredEvent](ev); ok {
 			e.index.register(routeEv.Route)
 			if _, isValidatable := routeEv.Route.(ValidatableRoute); isValidatable {
 				e.logger.Info("Registered validation schema for route %s %s",
