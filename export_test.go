@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"github.com/kryovyx/rex/route"
+	rxroute "github.com/kryovyx/rextension/route"
 )
 
 // NewTestMiddlewareConfig exposes MiddlewareConfig construction for tests.
@@ -13,7 +13,7 @@ func NewTestMiddlewareConfig(codecs []Codec, strict bool, validateResp bool) Mid
 }
 
 // RegisterTestRoute registers a route in the middleware config's route index.
-func RegisterTestRoute(cfg *MiddlewareConfig, rt route.Route) {
+func RegisterTestRoute(cfg *MiddlewareConfig, rt rxroute.Route) {
 	cfg.RouteIndex.register(rt)
 }
 

@@ -9,13 +9,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/kryovyx/rex/route"
+	rxroute "github.com/kryovyx/rextension/route"
 	validation "github.com/kryovyx/rextension-validation"
 )
 
 // --- Test helpers ---
 
-// testValidatableRoute implements both route.Route and validation.ValidatableRoute.
+// testValidatableRoute implements both rxroute.Route and validation.ValidatableRoute.
 type testValidatableRoute struct {
 	method  string
 	path    string
@@ -25,11 +25,11 @@ type testValidatableRoute struct {
 
 func (r *testValidatableRoute) Method() string                           { return r.method }
 func (r *testValidatableRoute) Path() string                             { return r.path }
-func (r *testValidatableRoute) Handler() route.HandlerFunc               { return nil }
+func (r *testValidatableRoute) Handler() rxroute.HandlerFunc               { return nil }
 func (r *testValidatableRoute) RequestBody() validation.BodySchema       { return r.reqBody }
 func (r *testValidatableRoute) Responses() map[int]validation.BodySchema { return r.respMap }
 
-// testPlainRoute implements route.Route but NOT ValidatableRoute.
+// testPlainRoute implements rxroute.Route but NOT ValidatableRoute.
 type testPlainRoute struct {
 	method string
 	path   string
@@ -37,7 +37,7 @@ type testPlainRoute struct {
 
 func (r *testPlainRoute) Method() string             { return r.method }
 func (r *testPlainRoute) Path() string               { return r.path }
-func (r *testPlainRoute) Handler() route.HandlerFunc { return nil }
+func (r *testPlainRoute) Handler() rxroute.HandlerFunc { return nil }
 
 // Test request/response types.
 type createUserReq struct {
@@ -63,7 +63,7 @@ type flexReqB struct {
 	Beta string `json:"beta" validate:"required"`
 }
 
-func newMiddleware(codecs []validation.Codec, strict, validateResp bool, routes ...route.Route) func(http.Handler) http.Handler {
+func newMiddleware(codecs []validation.Codec, strict, validateResp bool, routes ...rxroute.Route) func(http.Handler) http.Handler {
 	cfg := validation.NewTestMiddlewareConfig(codecs, strict, validateResp)
 	for _, rt := range routes {
 		validation.RegisterTestRoute(&cfg, rt)
