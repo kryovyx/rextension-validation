@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
+	rxroute "github.com/kryovyx/rextension/route"
 )
 
 // routeValidator wraps the go-playground validator instance.
@@ -79,6 +80,14 @@ func ValidationMiddleware(cfg MiddlewareConfig) func(http.Handler) http.Handler 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			vr, found := cfg.RouteIndex.lookup(r.Method, r.URL.Path)
+			if !found {
+				if rt, ok := rxroute.GetMatchedRoute(r); ok {
+					if validatable, isValidatable := rt.(ValidatableRoute); isValidatable {
+						vr = validatable
+						found = true
+					}
+				}
+			}
 			if !found {
 				next.ServeHTTP(w, r)
 				return

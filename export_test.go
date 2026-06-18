@@ -14,7 +14,7 @@ func NewTestMiddlewareConfig(codecs []Codec, strict bool, validateResp bool) Mid
 
 // RegisterTestRoute registers a route in the middleware config's route index.
 func RegisterTestRoute(cfg *MiddlewareConfig, rt rxroute.Route) {
-	cfg.RouteIndex.register(rt)
+	cfg.RouteIndex.register(rt, "test", "")
 }
 
 // ExportNewCodecRegistry exposes codecRegistry for tests.

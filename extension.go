@@ -29,6 +29,7 @@ type ValidationExtension struct {
 	index     *routeIndex
 	registry  *codecRegistry
 	validator routeValidator
+	rex       rx.Rex // Store reference to Rex for router access
 }
 
 // NewValidationExtension constructs a validation extension instance.
@@ -52,6 +53,7 @@ func WithValidation(cfg *Config) rx.Option {
 // OnInitialize sets up the validation infrastructure and event subscriptions.
 func (e *ValidationExtension) OnInitialize(ctx context.Context, r rx.Rex) error {
 	e.logger = r.Logger()
+	e.rex = r // Store reference to Rex
 	e.index = newRouteIndex()
 	e.registry = newCodecRegistry(e.cfg.Codecs)
 	e.validator = newRouteValidator()
@@ -59,7 +61,10 @@ func (e *ValidationExtension) OnInitialize(ctx context.Context, r rx.Rex) error 
 	// Subscribe to route registration events to build the route index.
 	r.EventBus().Subscribe(rxevent.EventTypeRouterRouteRegistered, func(ev rxevent.Event) {
 		if routeEv, ok := rxevent.As[rxevent.RouterRouteRegisteredEvent](ev); ok {
-			e.index.register(routeEv.Route)
+			routerName := e.getRouterName(routeEv)
+			routerBaseURL := e.getRouterBaseURL(routeEv)
+
+			e.index.register(routeEv.Route, routerName, routerBaseURL)
 			if _, isValidatable := routeEv.Route.(ValidatableRoute); isValidatable {
 				e.logger.Info("Registered validation schema for route %s %s",
 					routeEv.Route.Method(), routeEv.Route.Path())
@@ -84,6 +89,21 @@ func (e *ValidationExtension) OnInitialize(ctx context.Context, r rx.Rex) error 
 		len(e.cfg.Codecs), e.cfg.StrictResponses)
 
 	return nil
+}
+
+// getRouterName extracts the router name from a RouterRouteRegisteredEvent.
+func (e *ValidationExtension) getRouterName(routeEv rxevent.RouterRouteRegisteredEvent) string {
+	if routerName := routeEv.RouterName; routerName != "" {
+		return routerName
+	}
+	return "default"
+}
+
+// getRouterBaseURL attempts to extract the router's base URL.
+// For now, this returns empty string as the event doesn't carry this information.
+// The middleware's stripSegment function handles the base path matching.
+func (e *ValidationExtension) getRouterBaseURL(routeEv rxevent.RouterRouteRegisteredEvent) string {
+	return ""
 }
 
 // OnStart is a no-op for the validation extension.
